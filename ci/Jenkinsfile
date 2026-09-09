@@ -1,0 +1,75 @@
+// CentraJob automation pipeline.
+//
+// Credentials come from Jenkins credential bindings, never from the repository.
+// Create the referenced credentials in Jenkins before enabling this job.
+
+pipeline {
+  agent any
+
+  parameters {
+    choice(name: 'ENVIRONMENT', choices: ['dev', 'qa', 'uat'], description: 'Target environment')
+    choice(name: 'SUITE', choices: ['smoke', 'regression', 'all'], description: 'Test suite')
+  }
+
+  environment {
+    ENV = "${params.ENVIRONMENT}"
+    CI = 'true'
+    HEADLESS = 'true'
+    CANDIDATE_USERNAME = credentials('centrajob-candidate-username')
+    CANDIDATE_PASSWORD = credentials('centrajob-candidate-password')
+    EMPLOYER_USERNAME = credentials('centrajob-employer-username')
+    EMPLOYER_PASSWORD = credentials('centrajob-employer-password')
+  }
+
+  options {
+    timeout(time: 60, unit: 'MINUTES')
+    timestamps()
+  }
+
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Install') {
+      steps {
+        sh 'npm ci'
+        sh 'npx playwright install --with-deps chromium'
+      }
+    }
+
+    stage('Static checks') {
+      steps {
+        sh 'npm run typecheck'
+        sh 'npm run lint'
+      }
+    }
+
+    stage('Test') {
+      steps {
+        script {
+          if (params.SUITE == 'all') {
+            sh 'npx playwright test'
+          } else {
+            sh "npx playwright test --grep @${params.SUITE}"
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      junit allowEmptyResults: true, testResults: 'reports/junit/results.xml'
+      archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true, fingerprint: false
+      publishHTML(target: [
+        reportDir: 'reports/html',
+        reportFiles: 'index.html',
+        reportName: 'Playwright Report',
+        keepAll: true,
+        alwaysLinkToLastBuild: true,
+        allowMissing: true
+      ])
+    }
+  }
+}

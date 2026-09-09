@@ -1,0 +1,33 @@
+{
+  "name": "centrajob-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Layered UI + API test automation framework for CentraJob (TypeScript + Playwright).",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
+    "test:login": "playwright test --grep @login",
+    "test:candidate": "playwright test --project=candidate",
+    "test:employer": "playwright test --project=employer",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "report": "playwright show-report reports/html"
+  },
+  "keywords": ["playwright", "typescript", "automation", "centrajob"],
+  "author": "CentraJob QA",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "dotenv": "^16.4.7",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^10.0.0",
+    "prettier": "^3.3.1",
+    "typescript": "^5.7.2"
+  }
+}

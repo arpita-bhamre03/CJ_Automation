@@ -1,0 +1,29 @@
+{
+  "_comment": "Persona catalogue only. Usernames and passwords are NEVER stored here - they are read from environment variables (see .env.example). Portal URLs are NEVER stored here either - they come from config/config.ts.",
+  "personas": {
+    "admin": {
+      "portal": "admin",
+      "role": "Platform administrator",
+      "usernameEnv": "ADMIN_USERNAME",
+      "passwordEnv": "ADMIN_PASSWORD"
+    },
+    "employer": {
+      "portal": "employer",
+      "role": "Employer / recruiter",
+      "usernameEnv": "EMPLOYER_USERNAME",
+      "passwordEnv": "EMPLOYER_PASSWORD"
+    },
+    "college": {
+      "portal": "college",
+      "role": "College / placement officer",
+      "usernameEnv": "COLLEGE_USERNAME",
+      "passwordEnv": "COLLEGE_PASSWORD"
+    },
+    "candidate": {
+      "portal": "candidate",
+      "role": "Job seeker",
+      "usernameEnv": "CANDIDATE_USERNAME",
+      "passwordEnv": "CANDIDATE_PASSWORD"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+# ---- Node / TypeScript ----
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# ---- Environment / secrets ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---- Playwright ----
+playwright-report/
+playwright/.cache/
+test-results/
+.last-run.json
+
+# ---- Generated artifacts (reports/, see README section "Reports") ----
+reports/
+
+# ---- Coverage ----
+coverage/
+.nyc_output/
+
+# ---- Logs ----
+*.log
+npm-debug.log*
+logs/
+
+# ---- IDE ----
+.idea/
+.vscode/
+*.swp
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Temporary ----
+tmp/
+temp/
+*.tmp
+
+# NOTE: committed test input assets under testdata/ and docs/ are intentionally
+# NOT ignored. Do not add testdata/ or docs/ to this file.

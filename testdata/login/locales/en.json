@@ -1,0 +1,10 @@
+{
+  "_comment": "Expected UI strings for the login feature. Values marked TODO were not verifiable from the application source and must be confirmed against the running DEV app before being asserted on.",
+  "emailLabel": "Email Address",
+  "emailPlaceholder": "Enter your email",
+  "passwordLabel": "Password",
+  "passwordPlaceholder": "Enter your password",
+  "signInButton": "Sign In",
+  "invalidCredentialsError": "TODO: capture the exact error text from DEV",
+  "requiredFieldError": "TODO: capture the exact error text from DEV"
+}
