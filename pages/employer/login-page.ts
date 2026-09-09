@@ -1,9 +1,14 @@
 /**
  * Employer portal login page.
  *
- * Selector note: see pages/candidate/login-page.ts. The `placeholder="Enter your email"`
- * / `name="email"` / `type="submit"` selectors below were read directly from
- * centrajob_employer_frontend/src/modules/Auth/pages/LoginPage.tsx.
+ * SELECTOR NOTE: the deployed DEV app DOES expose `data-testid` hooks - the auth
+ * screen carries 47 of them, all prefixed "auth-" (auth-login-email-input,
+ * auth-login-submit-button, ...). They are absent from the local
+ * centrajob_employer_frontend checkout, which is out of date relative to DEV, so
+ * trust the running app over that source tree when adding selectors here.
+ *
+ * The submit button is disabled until formik considers the form valid, so
+ * clickLogin() waits for it to become enabled rather than clicking blindly.
  *
  * Layer rules: locators + actions + queries only. No assertions, no test data.
  */
@@ -20,40 +25,43 @@ export class EmployerLoginPage extends BasePage {
   readonly submitButton: Locator;
   readonly loginForm: Locator;
   readonly errorMessage: Locator;
+  readonly appHeader: Locator;
+  readonly welcomeHeading: Locator;
   readonly dashboard: Locator;
+
+  /**
+   * The employer SPA routes an authenticated user to /dashboard, falling back to
+   * /empty-dashboard when the company has no data yet. Both mean "logged in".
+   * Read from centrajob_employer_frontend/src/routes/PrivateRoutes.tsx.
+   */
+  static readonly DASHBOARD_URL = /\/(dashboard|empty-dashboard)\b/;
 
   constructor(page: Page) {
     super(page);
 
-    this.emailInput = page.locator(
-      [
-        '[data-qa-id="employer-email-input"]',
-        '[data-testid="email-input"]',
-        'input[placeholder="Enter your email"]',
-        'input[type="email"]',
-        'input[name="email"]',
-      ].join(', '),
-    );
-    this.passwordInput = page.locator(
-      [
-        '[data-qa-id="employer-password-input"]',
-        '[data-testid="password-input"]',
-        'input[placeholder="Enter your password"]',
-        'input[type="password"]',
-        'input[name="password"]',
-      ].join(', '),
-    );
-    this.loginButton = page.locator(
-      '[data-qa-id="employer-login-button"], [data-testid="login-button"], button:has-text("Login")',
-    );
+    // These data-testid values are the app's own, read off the live DEV DOM
+    // (the employer auth screen exposes 47 of them, all prefixed "auth-").
+    this.emailInput = page.getByTestId('auth-login-email-input');
+    this.passwordInput = page.getByTestId('auth-login-password-input');
+    this.loginButton = page.getByTestId('auth-login-submit-button');
     this.submitButton = page.locator('button[type="submit"]');
-    this.loginForm = page.locator('[data-qa-id="login-form"], form, [data-testid="login-form"]');
+    this.loginForm = page.getByTestId('auth-login-form');
     this.errorMessage = page.locator(
       '[data-qa-id="error-message"], [role="alert"], .error-message, [data-testid="error-message"]',
     );
-    this.dashboard = page.locator(
-      '[data-qa-id="employer-dashboard"], [data-testid="dashboard"], h1:has-text("Dashboard")',
-    );
+    // The authenticated shell (MainLayout -> Header) renders a single <header>
+    // on every signed-in page. Matched by tag rather than by the banner role,
+    // which Playwright does not resolve for this markup.
+    this.appHeader = page.locator('[data-qa-id="app-header"]').or(page.locator('header'));
+
+    // The dashboard greets the signed-in user. Anchored on the comma so it cannot
+    // collide with the login screen's own "Welcome Back" title, and falling back
+    // to the app shell for accounts that render no greeting.
+    this.welcomeHeading = page.getByRole('heading', { name: /^Welcome back,/i });
+    this.dashboard = page
+      .locator('[data-qa-id="employer-dashboard"], [data-testid="dashboard"]')
+      .or(this.welcomeHeading)
+      .or(this.appHeader);
   }
 
   // ===== NAVIGATION =====
@@ -68,7 +76,10 @@ export class EmployerLoginPage extends BasePage {
   }
 
   async clickLogin(): Promise<void> {
-    await this.click(this.loginButton.or(this.submitButton));
+    // Gated on formik validity - wait for it to enable so a validation failure
+    // reports as such instead of as a generic click timeout.
+    await this.waitForEnabled(this.loginButton);
+    await this.click(this.loginButton);
   }
 
   async login(username: string, password: string): Promise<void> {
@@ -81,10 +92,24 @@ export class EmployerLoginPage extends BasePage {
     await this.waitForNetworkIdle();
   }
 
+  /** Wait for the SPA to land on the dashboard route and render the app shell. */
+  async waitForDashboard(): Promise<void> {
+    await this.waitForUrl(EmployerLoginPage.DASHBOARD_URL);
+    await this.waitForVisible(this.dashboard);
+  }
+
   // ===== QUERIES =====
   /** Renamed from verifyLoginFormDisplayed() - query methods use the is- prefix. */
   async isLoginFormDisplayed(): Promise<boolean> {
     return this.isVisible(this.loginForm);
+  }
+
+  /**
+   * Login succeeded when the credentials form is gone. Checked instead of a URL
+   * match so this stays true regardless of which post-login route the app picks.
+   */
+  async isLoginFormDismissed(): Promise<boolean> {
+    return this.isHidden(this.loginForm);
   }
 
   async isDashboardDisplayed(): Promise<boolean> {

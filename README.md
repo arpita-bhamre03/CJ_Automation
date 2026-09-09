@@ -80,6 +80,11 @@ All secrets come from `.env`, which is gitignored and must never be committed.
 There are **no credential defaults**. A missing variable throws a clear error rather
 than running the test with a placeholder and producing a misleading auth failure.
 
+> **Always quote values in `.env`.** dotenv treats an unquoted `#` as the start of a
+> comment, so `PASSWORD=Secret#1` is silently read as `Secret` — which surfaces much
+> later as an "Invalid Password" error on the login form, with a submit button that
+> never enables. Write `PASSWORD="Secret#1"`.
+
 ---
 
 ## 4. Running tests
@@ -144,19 +149,35 @@ construct page objects — every page object is exposed as a fixture in
 
 ## 6. Selector strategy — read before writing a page object
 
-The CentraJob React apps **currently expose neither `data-qa-id` nor `data-testid`**.
-Verified by scanning `centrajob_employer_frontend/src`: zero occurrences of either.
+**The deployed DEV app exposes `data-testid` hooks — use them.** The employer auth
+screen carries 47, all prefixed `auth-`: `auth-login-email-input`,
+`auth-login-password-input`, `auth-login-submit-button`, `auth-login-form`, and so on.
 
-Until the frontend team adds stable test hooks, page objects use a fallback chain:
+> **The local frontend checkout is stale.** `centrajob_employer_frontend/src` contains
+> **zero** `data-testid` occurrences, yet the running DEV build renders 47 of them.
+> When adding selectors, trust the running app over that source tree — dump the live
+> hooks with
+> `document.querySelectorAll('[data-testid],[data-qa-id]')` rather than grepping source.
 
-1. `[data-qa-id="..."]` — preferred, kept first so locators tighten automatically
-   the moment the attribute is added, with no change needed here
-2. `[data-testid="..."]` — second preference
-3. Real, stable attributes the app actually renders today — `placeholder`, `name`,
-   `type="submit"`, accessible roles and labels
-4. Never: generated class names, deep CSS, absolute XPath, DOM position
+Selector order of preference:
+
+1. `[data-qa-id="..."]` — none exist yet; kept first so locators tighten automatically
+   if the attribute is ever added
+2. `[data-testid="..."]` — **the practical default**, via `page.getByTestId(...)`
+3. Accessible roles and names — `getByRole('heading', { name: /^Welcome back,/i })`
+4. Stable rendered attributes — `placeholder`, `name`, `type="submit"`
+5. Never: generated class names, deep CSS, absolute XPath, DOM position
+
+Not every screen is covered. The dashboard exposes only three hooks, so dashboard
+verification anchors on the "Welcome back," heading and the `<header>` shell instead.
 
 Do not add attributes to application code without approval.
+
+### Form-validation-gated buttons
+
+The employer submit button is `disabled` until formik considers the form valid, so
+`clickLogin()` calls `waitForEnabled()` first. That turns "the form is invalid" into a
+message that says so, instead of a generic click timeout.
 
 ---
 
@@ -267,10 +288,17 @@ Anything further needs approval before installation, and must be added to
 **Implemented**
 
 - Candidate portal login (`@smoke @regression @login @candidate`)
+- Employer portal login + dashboard verification, 7 reported steps
+  (`@smoke @regression @login @employer`)
+
+> **The candidate test's assertion is weak and should be strengthened.** It asserts
+> `expect(page).toHaveURL(/.*(candidate|dashboard|home).*/i)`, which the candidate
+> portal's own login URL already satisfies — so the test passes whether or not login
+> succeeds. It was carried over unchanged during the migration to preserve intent;
+> it needs a real post-login signal, the way the employer test uses the dashboard.
 
 **Scaffolded, not yet exercised**
 
-- Employer login page object (no test yet — same as before the migration)
 - API layer: client, builder, abstract service, auth service, token provider,
   response assertions. Base URLs unset.
 

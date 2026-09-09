@@ -51,6 +51,45 @@ export abstract class BasePage {
     }
   }
 
+  async waitForHidden(locator: Locator, timeout = timeouts.element): Promise<void> {
+    await locator.waitFor({ state: 'hidden', timeout });
+  }
+
+  /** Non-throwing query for an element having gone away (detached or hidden). */
+  async isHidden(locator: Locator, timeout = timeouts.element): Promise<boolean> {
+    try {
+      await this.waitForHidden(locator, timeout);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async waitForUrl(pattern: RegExp, timeout = timeouts.navigation): Promise<void> {
+    await this.page.waitForURL(pattern, { timeout });
+  }
+
+  /**
+   * Wait for a control to become enabled. Playwright's click() already waits for
+   * this, but its timeout message only says "element is not enabled"; this raises
+   * a message that names the control, which matters for form-validation-gated
+   * buttons where "still disabled" means "the form is invalid".
+   */
+  async waitForEnabled(locator: Locator, timeout = timeouts.element): Promise<void> {
+    await this.waitForVisible(locator, timeout);
+
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      if (await locator.isEnabled()) return;
+      await this.page.waitForTimeout(100);
+    }
+
+    throw new Error(
+      `Control is still disabled after ${timeout}ms: ${locator}. ` +
+        `If this is a submit button, the form is failing client-side validation.`,
+    );
+  }
+
   async waitForNetworkIdle(): Promise<void> {
     await this.page.waitForLoadState('networkidle');
   }
