@@ -6,17 +6,24 @@
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
     "test:smoke": "playwright test --grep @smoke",
     "test:regression": "playwright test --grep @regression",
     "test:login": "playwright test --grep @login",
-    "test:candidate": "playwright test --project=candidate",
-    "test:employer": "playwright test --project=employer",
+    "test:candidate": "playwright test --grep @candidate",
+    "test:employer": "playwright test --grep @employer",
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "report": "playwright show-report reports/html"
   },
-  "keywords": ["playwright", "typescript", "automation", "centrajob"],
+  "keywords": [
+    "playwright",
+    "typescript",
+    "automation",
+    "centrajob"
+  ],
   "author": "CentraJob QA",
   "license": "MIT",
   "devDependencies": {

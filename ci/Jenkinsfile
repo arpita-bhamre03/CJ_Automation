@@ -15,6 +15,8 @@ pipeline {
     ENV = "${params.ENVIRONMENT}"
     CI = 'true'
     HEADLESS = 'true'
+    SLOW_MO = '0'
+    TYPE_DELAY = '0'
     CANDIDATE_USERNAME = credentials('centrajob-candidate-username')
     CANDIDATE_PASSWORD = credentials('centrajob-candidate-password')
     EMPLOYER_USERNAME = credentials('centrajob-employer-username')

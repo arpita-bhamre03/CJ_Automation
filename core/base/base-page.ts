@@ -8,6 +8,7 @@
  */
 import { Locator, Page } from '@playwright/test';
 import { timeouts } from '@config/app.config';
+import { settings } from '@config/settings';
 import { logger } from '@helpers/logger';
 
 export abstract class BasePage {
@@ -31,8 +32,23 @@ export abstract class BasePage {
     await locator.click();
   }
 
+  /**
+   * Set a field's value.
+   *
+   * With TYPE_DELAY=0 (the default, and always in CI) this is a single fill(),
+   * which is the fastest and most reliable option. Above 0 it types character by
+   * character so the input is visible during a watched run. Both paths clear the
+   * field first, so they are interchangeable.
+   */
   async fill(locator: Locator, value: string): Promise<void> {
     await this.waitForVisible(locator);
+    await locator.fill('');
+
+    if (settings.typeDelay > 0) {
+      await locator.pressSequentially(value, { delay: settings.typeDelay });
+      return;
+    }
+
     await locator.fill(value);
   }
 

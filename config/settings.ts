@@ -32,12 +32,29 @@ export const getCredentials = (portal: Portal): Credentials => {
   };
 };
 
+const numberFromEnv = (key: string, fallback: number): number => {
+  const parsed = Number(process.env[key]);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+};
+
 export const settings = {
   environment: currentEnvironment.name,
   timeout: currentEnvironment.timeout,
   retryCount: currentEnvironment.retryCount,
   headless: (process.env.HEADLESS ?? 'true').toLowerCase() !== 'false',
   reportsDir: process.env.REPORTS_DIR ?? 'reports',
+
+  /**
+   * Watch-the-run controls. Both default to 0 so CI is never slowed down.
+   *
+   * slowMo   - milliseconds Playwright pauses before each action, so you can see
+   *            which control it is about to operate on.
+   * typeDelay - milliseconds between keystrokes. Above 0, BasePage.fill() types
+   *            character by character instead of setting the value in one shot,
+   *            which is the only way the text is actually visible going in.
+   */
+  slowMo: numberFromEnv('SLOW_MO', 0),
+  typeDelay: numberFromEnv('TYPE_DELAY', 0),
 };
 
 /** Mirrors get_settings() from the framework spec. */

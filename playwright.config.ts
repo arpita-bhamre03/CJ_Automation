@@ -28,6 +28,9 @@ export default defineConfig({
   timeout: timeouts.test,
   expect: { timeout: timeouts.expect },
   fullyParallel: false,
+  // A watched run is sequential: parallel workers open several browser windows at
+  // once, which is impossible to follow. Headless runs keep the default workers.
+  workers: settings.headless ? undefined : 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : currentEnvironment.retryCount,
   reporter: [
@@ -46,6 +49,8 @@ export default defineConfig({
     navigationTimeout: timeouts.navigation,
     headless: settings.headless,
     ignoreHTTPSErrors: true,
+    // SLOW_MO pauses before each action so a headed run is watchable. 0 in CI.
+    launchOptions: { slowMo: settings.slowMo },
   },
   projects: [
     {

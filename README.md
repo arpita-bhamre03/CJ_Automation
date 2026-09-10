@@ -72,6 +72,8 @@ All secrets come from `.env`, which is gitignored and must never be committed.
 | `ENV` | Active environment (`dev` default) |
 | `<PORTAL>_USERNAME` / `<PORTAL>_PASSWORD` | Credentials per portal persona |
 | `HEADLESS` | `false` to watch the browser |
+| `SLOW_MO` | ms paused before each action, so you can see what is being targeted |
+| `TYPE_DELAY` | ms between keystrokes; above 0, text is typed rather than set at once |
 | `REPORTS_DIR`, `TRACE_MODE`, `VIDEO_MODE` | Artifact behaviour |
 | `LOG_LEVEL` | `DEBUG` / `INFO` / `WARN` / `ERROR` |
 | `*_API_URL` | API service base URLs (pending) |
@@ -93,7 +95,8 @@ than running the test with a placeholder and producing a misleading auth failure
 npm test                                     # everything
 npm run test:smoke                           # @smoke only
 npm run test:regression                      # @regression only
-npm run test:headed                          # watch the browser
+npm run test:headed                          # watch the browser (already the default via .env)
+npm run test:debug                           # step through each action
 npx playwright test tests/web/login/login.spec.ts    # one file
 npx playwright test --grep @login            # one tag
 ENV=dev npx playwright test                  # choose environment
