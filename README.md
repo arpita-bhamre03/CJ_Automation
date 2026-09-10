@@ -97,7 +97,7 @@ npm run test:smoke                           # @smoke only
 npm run test:regression                      # @regression only
 npm run test:headed                          # watch the browser (already the default via .env)
 npm run test:debug                           # step through each action
-npx playwright test tests/web/login/login.spec.ts    # one file
+npx playwright test tests/web/employer/login.spec.ts # one file
 npx playwright test --grep @login            # one tag
 ENV=dev npx playwright test                  # choose environment
 npx playwright test --project=chromium       # choose browser
@@ -125,11 +125,28 @@ utilities/    generic, project-independent helpers (never imports pages/)
 api/          interface → client → abstract → service → response assertions
 database/     Cosmos DB validation (pending)
 testdata/     personas, expected UI strings, payloads
-tests/        fixtures + specs (web / services)
+tests/        fixtures + specs, UI specs grouped per portal
 ci/           Jenkinsfile
 docs/         project documentation
 reports/      generated artifacts (gitignored)
 ```
+
+UI specs are grouped by portal, mirroring how `pages/` is organised, so a portal's
+page objects and its specs sit at the same path under each root:
+
+```
+tests/
+├── fixtures/            shared test fixtures
+├── web/
+│   ├── candidate/       login.spec.ts
+│   ├── employer/        login.spec.ts
+│   ├── college/         (no specs yet)
+│   └── admin/           (no specs yet)
+└── services/web/        API specs, grouped by domain (none yet)
+```
+
+A new UI spec goes in `tests/web/<portal>/<feature>.spec.ts` — the portal folder
+already names the portal, so do not repeat it in the filename.
 
 ### Layering rules
 
