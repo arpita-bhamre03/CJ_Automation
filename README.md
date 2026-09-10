@@ -169,7 +169,13 @@ Selector order of preference:
 5. Never: generated class names, deep CSS, absolute XPath, DOM position
 
 Not every screen is covered. The dashboard exposes only three hooks, so dashboard
-verification anchors on the "Welcome back," heading and the `<header>` shell instead.
+verification anchors on the "Welcome back," heading and the app shell's `banner`
+landmark instead.
+
+**End an `.or()` fallback chain with `.first()`.** Once a page finishes rendering,
+several alternatives in the chain can match at the same time, and `waitFor()` then
+fails strict mode. Without `.first()` the result depends on render timing, so the
+test passes or fails at random.
 
 Do not add attributes to application code without approval.
 

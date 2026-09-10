@@ -49,19 +49,24 @@ export class EmployerLoginPage extends BasePage {
     this.errorMessage = page.locator(
       '[data-qa-id="error-message"], [role="alert"], .error-message, [data-testid="error-message"]',
     );
-    // The authenticated shell (MainLayout -> Header) renders a single <header>
-    // on every signed-in page. Matched by tag rather than by the banner role,
-    // which Playwright does not resolve for this markup.
-    this.appHeader = page.locator('[data-qa-id="app-header"]').or(page.locator('header'));
+    // The authenticated shell (MainLayout -> Header -> MUI AppBar) renders a
+    // single <header> on every signed-in page, which is also the banner landmark.
+    this.appHeader = page.locator('[data-qa-id="app-header"]').or(page.getByRole('banner'));
 
     // The dashboard greets the signed-in user. Anchored on the comma so it cannot
     // collide with the login screen's own "Welcome Back" title, and falling back
     // to the app shell for accounts that render no greeting.
+    //
+    // .first() is required, not cosmetic: once the page has fully rendered, the
+    // greeting and the header are both present, so the .or() chain matches two
+    // elements and waitFor() fails strict mode. Without it this passes or fails
+    // depending on render timing.
     this.welcomeHeading = page.getByRole('heading', { name: /^Welcome back,/i });
     this.dashboard = page
       .locator('[data-qa-id="employer-dashboard"], [data-testid="dashboard"]')
       .or(this.welcomeHeading)
-      .or(this.appHeader);
+      .or(this.appHeader)
+      .first();
   }
 
   // ===== NAVIGATION =====
