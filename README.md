@@ -139,9 +139,9 @@ with `tests/web/employer/login.spec.ts`:
 pages/                          tests/
 ├── candidate/  login-page.ts   ├── fixtures/   shared test fixtures
 ├── employer/   login-page.ts   ├── web/
-├── college/    (none yet)      │   ├── candidate/  login.spec.ts
+├── college/    login-page.ts   │   ├── candidate/  login.spec.ts
 ├── admin/      (none yet)      │   ├── employer/   login.spec.ts
-└── common/     shared pages    │   ├── college/    (none yet)
+└── common/     shared pages    │   ├── college/    login.spec.ts
                                 │   └── admin/      (none yet)
                                 └── services/web/   API specs (none yet)
 ```
@@ -191,9 +191,18 @@ Selector order of preference:
 4. Stable rendered attributes — `placeholder`, `name`, `type="submit"`
 5. Never: generated class names, deep CSS, absolute XPath, DOM position
 
-Not every screen is covered. The dashboard exposes only three hooks, so dashboard
-verification anchors on the "Welcome back," heading and the app shell's `banner`
-landmark instead.
+Coverage varies sharply by portal, so check the live DOM before assuming:
+
+| Portal | Test hooks on the login screen | Naming |
+|---|---|---|
+| College | 163 | unprefixed — `login-form`, `login-email-input`, `login-submit-btn` |
+| Employer | 47 | `auth-` prefixed — `auth-login-email-input` |
+| Candidate | not yet surveyed | — |
+
+Dashboards are far thinner than login screens. The employer dashboard exposes three
+hooks and the college dashboard none, so both anchor verification on the
+"Welcome back," heading instead — plus the app shell's `banner` landmark on employer,
+which the college portal does not render.
 
 **End an `.or()` fallback chain with `.first()`.** Once a page finishes rendering,
 several alternatives in the chain can match at the same time, and `waitFor()` then
@@ -319,6 +328,8 @@ Anything further needs approval before installation, and must be added to
 - Candidate portal login (`@smoke @regression @login @candidate`)
 - Employer portal login + dashboard verification, 7 reported steps
   (`@smoke @regression @login @employer`)
+- College portal login + dashboard verification, 7 reported steps
+  (`@smoke @regression @login @college`)
 
 > **The candidate test's assertion is weak and should be strengthened.** It asserts
 > `expect(page).toHaveURL(/.*(candidate|dashboard|home).*/i)`, which the candidate

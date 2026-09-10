@@ -14,6 +14,7 @@ import { getCredentials, type Credentials } from '@config/settings';
 import { resolvePortalUrl } from '@core/platform/platform';
 import { CandidateLoginPage } from '@pages/candidate/login-page';
 import { EmployerLoginPage } from '@pages/employer/login-page';
+import { CollegeLoginPage } from '@pages/college/login-page';
 import { captureFailureArtifacts } from '@helpers/failure-artifact';
 import { logger } from '@helpers/logger';
 
@@ -22,14 +23,17 @@ type CentraJobFixtures = {
   environment: AppEnvironmentConfig;
   candidateUrl: string;
   employerUrl: string;
+  collegeUrl: string;
 
   // ---- credentials ----
   candidateUser: Credentials;
   employerUser: Credentials;
+  collegeUser: Credentials;
 
   // ---- page objects ----
   candidateLoginPage: CandidateLoginPage;
   employerLoginPage: EmployerLoginPage;
+  collegeLoginPage: CollegeLoginPage;
 
   // ---- diagnostics ----
   consoleLogs: string[];
@@ -49,6 +53,10 @@ export const test = base.extend<CentraJobFixtures>({
     await use(resolvePortalUrl('employer'));
   },
 
+  collegeUrl: async ({}, use) => {
+    await use(resolvePortalUrl('college'));
+  },
+
   // ===== CREDENTIALS =====
   candidateUser: async ({}, use) => {
     await use(getCredentials('candidate'));
@@ -56,6 +64,10 @@ export const test = base.extend<CentraJobFixtures>({
 
   employerUser: async ({}, use) => {
     await use(getCredentials('employer'));
+  },
+
+  collegeUser: async ({}, use) => {
+    await use(getCredentials('college'));
   },
 
   // ===== DIAGNOSTICS =====
@@ -79,6 +91,10 @@ export const test = base.extend<CentraJobFixtures>({
 
   employerLoginPage: async ({ page }, use) => {
     await use(new EmployerLoginPage(page));
+  },
+
+  collegeLoginPage: async ({ page }, use) => {
+    await use(new CollegeLoginPage(page));
   },
 });
 

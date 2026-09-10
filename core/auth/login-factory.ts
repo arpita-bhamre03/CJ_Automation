@@ -10,13 +10,14 @@ import { getCredentials } from '@config/settings';
 import { type Portal } from '@core/platform/platform';
 import { CandidateLoginPage } from '@pages/candidate/login-page';
 import { EmployerLoginPage } from '@pages/employer/login-page';
+import { CollegeLoginPage } from '@pages/college/login-page';
 import { logger } from '@helpers/logger';
 
 export class LoginFactory {
   /**
    * Log in to a portal using the persona credentials for that portal.
-   * College and admin portals are not implemented yet - no page objects exist
-   * for them, and none are invented here.
+   * The admin portal is not implemented yet - no page object exists for it,
+   * and none is invented here.
    */
   static async loginAs(page: Page, portal: Portal): Promise<void> {
     const { username, password } = getCredentials(portal);
@@ -30,6 +31,13 @@ export class LoginFactory {
       }
       case 'employer': {
         const loginPage = new EmployerLoginPage(page);
+        await loginPage.navigateToLoginPage();
+        await loginPage.login(username, password);
+        await loginPage.waitForLoginResult();
+        return;
+      }
+      case 'college': {
+        const loginPage = new CollegeLoginPage(page);
         await loginPage.navigateToLoginPage();
         await loginPage.login(username, password);
         await loginPage.waitForLoginResult();

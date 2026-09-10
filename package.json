@@ -13,6 +13,7 @@
     "test:login": "playwright test --grep @login",
     "test:candidate": "playwright test --grep @candidate",
     "test:employer": "playwright test --grep @employer",
+    "test:college": "playwright test --grep @college",
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
