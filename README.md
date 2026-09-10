@@ -131,22 +131,25 @@ docs/         project documentation
 reports/      generated artifacts (gitignored)
 ```
 
-UI specs are grouped by portal, mirroring how `pages/` is organised, so a portal's
-page objects and its specs sit at the same path under each root:
+Page objects and UI specs are both grouped by portal, so a portal's pages and its
+specs sit at the same path under each root — `pages/employer/login-page.ts` pairs
+with `tests/web/employer/login.spec.ts`:
 
 ```
-tests/
-├── fixtures/            shared test fixtures
-├── web/
-│   ├── candidate/       login.spec.ts
-│   ├── employer/        login.spec.ts
-│   ├── college/         (no specs yet)
-│   └── admin/           (no specs yet)
-└── services/web/        API specs, grouped by domain (none yet)
+pages/                          tests/
+├── candidate/  login-page.ts   ├── fixtures/   shared test fixtures
+├── employer/   login-page.ts   ├── web/
+├── college/    (none yet)      │   ├── candidate/  login.spec.ts
+├── admin/      (none yet)      │   ├── employer/   login.spec.ts
+└── common/     shared pages    │   ├── college/    (none yet)
+                                │   └── admin/      (none yet)
+                                └── services/web/   API specs (none yet)
 ```
 
-A new UI spec goes in `tests/web/<portal>/<feature>.spec.ts` — the portal folder
-already names the portal, so do not repeat it in the filename.
+A new page object goes in `pages/<portal>/<feature>-page.ts` and its spec in
+`tests/web/<portal>/<feature>.spec.ts`. The folder already names the portal, so do
+not repeat it in the filename. `pages/common/` is for page objects shared across
+portals — put one there only when it is genuinely used by more than one.
 
 ### Layering rules
 
