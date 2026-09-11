@@ -364,11 +364,18 @@ Anything further needs approval before installation, and must be added to
   (`@smoke @regression @login @college`)
 - Admin panel login with the emailed verification code read from Yopmail, then
   dashboard verification, 10 reported steps (`@smoke @regression @login @admin`)
-- Employer sign-up: registration form, code emailed to a new Yopmail inbox, set
-  password, landing on company details — 10 reported steps
-  (`@regression @signup @employer`). **Each run registers a new company on DEV**
-  with generated, unique details; company details and document uploads (the rest of
-  onboarding) are not covered yet.
+- Employer sign-up through all three stages — 20 reported steps, each labelled
+  with its stage (`@regression @signup @employer`):
+  - **1/3** registration form, code emailed to a new Yopmail inbox, set password
+  - **2/3** company details: designation, LinkedIn, website, industry, pincode with
+    address auto-fill, address, description, company logo and profile photo
+  - **3/3** registration, tax and address-proof documents, then Finish Sign-up,
+    which submits the company for verification and opens the new employer's
+    dashboard, greeting them by name with "Company Details will be verified
+    within 24 hours"
+
+  **Each run registers a new company on DEV** with generated, unique details. The
+  upload files are small QA samples in `testdata/signup/assets/`.
 
 > **The candidate test's assertion is weak and should be strengthened.** It asserts
 > `expect(page).toHaveURL(/.*(candidate|dashboard|home).*/i)`, which the candidate

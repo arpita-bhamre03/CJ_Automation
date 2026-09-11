@@ -15,6 +15,8 @@ import { resolvePortalUrl } from '@core/platform/platform';
 import { CandidateLoginPage } from '@pages/candidate/login-page';
 import { EmployerLoginPage } from '@pages/employer/login-page';
 import { EmployerSignUpPage } from '@pages/employer/signup-page';
+import { EmployerCompanyDetailsPage } from '@pages/employer/company-details-page';
+import { EmployerCompanyDocumentsPage } from '@pages/employer/company-documents-page';
 import { CollegeLoginPage } from '@pages/college/login-page';
 import { AdminLoginPage } from '@pages/admin/login-page';
 import { YopmailInboxPage } from '@pages/common/yopmail-inbox-page';
@@ -39,6 +41,8 @@ type CentraJobFixtures = {
   candidateLoginPage: CandidateLoginPage;
   employerLoginPage: EmployerLoginPage;
   employerSignUpPage: EmployerSignUpPage;
+  employerCompanyDetailsPage: EmployerCompanyDetailsPage;
+  employerCompanyDocumentsPage: EmployerCompanyDocumentsPage;
   collegeLoginPage: CollegeLoginPage;
   adminLoginPage: AdminLoginPage;
   yopmailInboxPage: YopmailInboxPage;
@@ -111,6 +115,14 @@ export const test = base.extend<CentraJobFixtures>({
 
   employerSignUpPage: async ({ page }, use) => {
     await use(new EmployerSignUpPage(page));
+  },
+
+  employerCompanyDetailsPage: async ({ page }, use) => {
+    await use(new EmployerCompanyDetailsPage(page));
+  },
+
+  employerCompanyDocumentsPage: async ({ page }, use) => {
+    await use(new EmployerCompanyDocumentsPage(page));
   },
 
   collegeLoginPage: async ({ page }, use) => {

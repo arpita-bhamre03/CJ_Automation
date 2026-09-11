@@ -1,17 +1,16 @@
 /**
- * Employer portal sign-up: registration form -> "Verify Your Email" -> set
- * password. A successful sign-up creates the company account, signs the new user
- * in, and lands on the first onboarding screen, company details verification.
+ * Employer portal sign-up, stage 1/3: registration form -> "Verify Your Email" ->
+ * set password. Setting the password creates the account and signs the new user
+ * in, landing on stage 2/3 (see company-details-page.ts).
  *
  * Screens and hooks, read off the live DEV app (DOM and deployed bundle):
- *   /auth/register                      auth-register-*        step badge "1/3"
- *   /auth/verification-code             auth-otp-*             boxes auth-otp-digit-1..6-input
- *   /auth/set-password                  auth-set-password-*
- *   /auth/company-details-verification  auth-company-details-*
+ *   /auth/register            auth-register-*        step badge "1/3"
+ *   /auth/verification-code   auth-otp-*             boxes auth-otp-digit-1..6-input
+ *   /auth/set-password        auth-set-password-*
  *
  * "Get Started" stays disabled until the terms box is ticked. It then checks the
  * mobile number and both emails are not already registered, and emails a code to
- * the official (admin) email. "Set Password" is what creates the account.
+ * the official (admin) email.
  *
  * Layer rules: locators + actions + queries only. No assertions, no test data.
  */
@@ -54,13 +53,8 @@ export class EmployerSignUpPage extends BasePage {
   readonly confirmPasswordInput: Locator;
   readonly setPasswordButton: Locator;
 
-  // ===== LOCATORS: company details (first onboarding screen) =====
-  readonly companyDetailsPage: Locator;
-  readonly companyDetailsTitle: Locator;
-
   static readonly VERIFY_EMAIL_URL = /\/auth\/verification-code\b/;
   static readonly SET_PASSWORD_URL = /\/auth\/set-password\b/;
-  static readonly COMPANY_DETAILS_URL = /\/auth\/company-details-verification\b/;
 
   constructor(page: Page) {
     super(page);
@@ -85,9 +79,6 @@ export class EmployerSignUpPage extends BasePage {
     this.passwordInput = page.getByTestId('auth-set-password-password-input');
     this.confirmPasswordInput = page.getByTestId('auth-set-password-confirm-password-input');
     this.setPasswordButton = page.getByTestId('auth-set-password-submit-button');
-
-    this.companyDetailsPage = page.getByTestId('auth-company-details-page');
-    this.companyDetailsTitle = page.getByTestId('auth-company-details-title');
   }
 
   /** One of the six code boxes, numbered 1-6 as the app numbers them. */
@@ -155,11 +146,6 @@ export class EmployerSignUpPage extends BasePage {
     await this.click(this.setPasswordButton);
   }
 
-  async waitForCompanyDetailsScreen(): Promise<void> {
-    await this.waitForUrl(EmployerSignUpPage.COMPANY_DETAILS_URL);
-    await this.waitForVisible(this.companyDetailsPage);
-  }
-
   // ===== QUERIES =====
   async isRegisterFormDisplayed(): Promise<boolean> {
     return this.isVisible(this.registerForm);
@@ -180,13 +166,5 @@ export class EmployerSignUpPage extends BasePage {
   /** The address the code was sent to, as shown on "Verify Your Email". */
   async getVerificationEmailAddress(): Promise<string> {
     return (await this.getText(this.verifyEmailAddress)).trim();
-  }
-
-  async isCompanyDetailsDisplayed(): Promise<boolean> {
-    return this.isVisible(this.companyDetailsPage);
-  }
-
-  async getCompanyDetailsTitle(): Promise<string> {
-    return (await this.getText(this.companyDetailsTitle)).trim();
   }
 }

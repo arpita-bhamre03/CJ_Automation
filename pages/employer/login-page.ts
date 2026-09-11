@@ -128,6 +128,11 @@ export class EmployerLoginPage extends BasePage {
     return this.isVisible(this.dashboard);
   }
 
+  /** The dashboard greeting, e.g. "Welcome back, Diya Sharma". */
+  async getWelcomeMessage(): Promise<string> {
+    return (await this.getText(this.welcomeHeading)).trim();
+  }
+
   async getErrorMessage(): Promise<string> {
     return this.getText(this.errorMessage);
   }

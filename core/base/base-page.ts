@@ -122,4 +122,37 @@ export abstract class BasePage {
   async bringToFront(): Promise<void> {
     await this.page.bringToFront();
   }
+
+  /**
+   * Set a field's value in one go, even when TYPE_DELAY is set. For inputs that
+   * rewrite their value on every keystroke (e.g. auto-prefixing a URL), where
+   * typing character by character would garble what ends up in the field.
+   */
+  async fillWithoutTyping(locator: Locator, value: string): Promise<void> {
+    await this.waitForVisible(locator);
+    await locator.fill(value);
+  }
+
+  /** Attach a file to a file input. Works on hidden inputs, as most upload widgets use. */
+  async uploadFile(locator: Locator, filePath: string): Promise<void> {
+    await locator.setInputFiles(filePath);
+  }
+
+  /** Non-throwing check that some text is on screen, e.g. a confirmation toast. */
+  async isTextDisplayed(text: string, timeout = timeouts.element): Promise<boolean> {
+    return this.isVisible(this.page.getByText(text).first(), timeout);
+  }
+
+  /**
+   * The editable input or textarea behind a form field, whether the app put the
+   * data-testid on the element itself or on the MUI wrapper around it. Hidden
+   * helper elements (MUI's autosize textarea, hidden value inputs) are skipped.
+   */
+  protected textFieldByTestId(testId: string): Locator {
+    const own = `input[data-testid="${testId}"], textarea[data-testid="${testId}"]`;
+    const inside =
+      `[data-testid="${testId}"] input:not([type="hidden"]):not([aria-hidden="true"]), ` +
+      `[data-testid="${testId}"] textarea:not([aria-hidden="true"])`;
+    return this.page.locator(`${own}, ${inside}`).first();
+  }
 }

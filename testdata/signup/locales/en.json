@@ -2,5 +2,11 @@
   "_comment": "Expected UI strings for employer sign-up, read off the live DEV app and its deployed bundle.",
   "registerTitle": "Get Started",
   "registerStepBadge": "1/3",
-  "verifyEmailTitle": "Verify Your Email"
+  "verifyEmailTitle": "Verify Your Email",
+  "companyDetailsTitle": "Company Details",
+  "companyDetailsStepBadge": "2/3",
+  "companyDocumentsTitle": "Verify Your Business and Gain Credibility",
+  "companyDocumentsStepBadge": "3/3",
+  "signUpSubmittedMessage": "Company details submitted successfully!",
+  "verificationPendingBanner": "Company Details will be verified within 24 hours"
 }
