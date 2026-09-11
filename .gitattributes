@@ -1,0 +1,13 @@
+# Binary assets must never have their line endings converted. Test upload files
+# such as the sample PDFs are plain ASCII, so Git would otherwise treat them as
+# text and rewrite LF to CRLF on Windows checkouts - which shifts the byte
+# offsets a PDF's cross-reference table depends on.
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.svg   binary
+*.xlsx  binary
+*.zip   binary
