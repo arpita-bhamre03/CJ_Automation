@@ -203,9 +203,16 @@ Coverage varies sharply by portal, so check the live DOM before assuming:
 
 Dashboards are far thinner than login screens. The employer dashboard exposes three
 hooks and the college dashboard none, so both anchor verification on the
-"Welcome back," heading instead — plus the app shell's `banner` landmark on employer,
+"Welcome back," heading instead — plus the app shell's `<header>` on employer,
 which the college portal does not render. The admin dashboard is the exception:
 it carries `#Dashboard_*` and `#Sidebar_menu_*` ids, plus an exact "Dashboard" title.
+
+**Pop-ups hide the page from role-based lookups.** The employer dashboard can open a
+pop-up such as "A Virtual Job Fair is live". While it is open, MUI marks everything
+behind it `aria-hidden`, and `getByRole()` skips `aria-hidden` elements — so a
+greeting that is plainly on screen is "not found". Whether the pop-up is already open
+depends on timing (a slowed, watched run reaches it; a fast headless run may not).
+The employer dashboard anchors therefore match by tag and visible text instead.
 
 The admin email field is `readonly` until focused (an anti-autofill technique), and
 Playwright will not type into a readonly field — so the admin page object clicks each

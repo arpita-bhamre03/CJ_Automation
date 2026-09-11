@@ -6,7 +6,8 @@
  * Screens and hooks, read off the live DEV app (DOM and deployed bundle):
  *   /auth/register            auth-register-*        step badge "1/3"
  *   /auth/verification-code   auth-otp-*             boxes auth-otp-digit-1..6-input
- *   /auth/set-password        auth-set-password-*
+ *   /auth/set-password        auth-set-password-*    with an eye icon per field
+ *                                                    (...-visibility-toggle)
  *
  * "Get Started" stays disabled until the terms box is ticked. It then checks the
  * mobile number and both emails are not already registered, and emails a code to
@@ -16,6 +17,7 @@
  */
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '@core/base/base-page';
+import { settings } from '@config/settings';
 import { resolvePortalUrl } from '@core/platform/platform';
 import { logger } from '@helpers/logger';
 
@@ -51,6 +53,8 @@ export class EmployerSignUpPage extends BasePage {
   readonly setPasswordForm: Locator;
   readonly passwordInput: Locator;
   readonly confirmPasswordInput: Locator;
+  readonly passwordVisibilityToggle: Locator;
+  readonly confirmPasswordVisibilityToggle: Locator;
   readonly setPasswordButton: Locator;
 
   static readonly VERIFY_EMAIL_URL = /\/auth\/verification-code\b/;
@@ -78,6 +82,12 @@ export class EmployerSignUpPage extends BasePage {
     this.setPasswordForm = page.getByTestId('auth-set-password-form');
     this.passwordInput = page.getByTestId('auth-set-password-password-input');
     this.confirmPasswordInput = page.getByTestId('auth-set-password-confirm-password-input');
+    this.passwordVisibilityToggle = page.getByTestId(
+      'auth-set-password-password-visibility-toggle',
+    );
+    this.confirmPasswordVisibilityToggle = page.getByTestId(
+      'auth-set-password-confirm-password-visibility-toggle',
+    );
     this.setPasswordButton = page.getByTestId('auth-set-password-submit-button');
   }
 
@@ -138,10 +148,24 @@ export class EmployerSignUpPage extends BasePage {
     await this.waitForVisible(this.setPasswordForm);
   }
 
-  /** Enter and confirm the password, then submit - this creates the account. */
-  async setPassword(password: string): Promise<void> {
+  /** Type the password and its confirmation (masked until shown). */
+  async enterPassword(password: string): Promise<void> {
     await this.fill(this.passwordInput, password);
     await this.fill(this.confirmPasswordInput, password);
+  }
+
+  /**
+   * Click both eye icons so the typed passwords appear in plain text. In a
+   * watched run it then holds briefly so they can be read; SLOW_MO is 0 in CI.
+   */
+  async showPasswords(): Promise<void> {
+    await this.click(this.passwordVisibilityToggle);
+    await this.click(this.confirmPasswordVisibilityToggle);
+    await this.page.waitForTimeout(settings.slowMo * 3);
+  }
+
+  /** Submit the password - this creates the account. */
+  async clickSetPassword(): Promise<void> {
     await this.waitForEnabled(this.setPasswordButton);
     await this.click(this.setPasswordButton);
   }
@@ -166,5 +190,22 @@ export class EmployerSignUpPage extends BasePage {
   /** The address the code was sent to, as shown on "Verify Your Email". */
   async getVerificationEmailAddress(): Promise<string> {
     return (await this.getText(this.verifyEmailAddress)).trim();
+  }
+
+  /** True when both password fields show their text rather than dots. */
+  async arePasswordsShown(): Promise<boolean> {
+    const types = await Promise.all([
+      this.passwordInput.getAttribute('type'),
+      this.confirmPasswordInput.getAttribute('type'),
+    ]);
+    return types.every((type) => type === 'text');
+  }
+
+  async getShownPassword(): Promise<string> {
+    return this.passwordInput.inputValue();
+  }
+
+  async getShownConfirmPassword(): Promise<string> {
+    return this.confirmPasswordInput.inputValue();
   }
 }

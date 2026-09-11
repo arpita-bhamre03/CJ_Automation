@@ -102,11 +102,20 @@ test.describe('Employer sign-up UI', () => {
         await employerSignUpPage.submitVerificationCode();
       });
 
-      await test.step('Step 9 [1/3]: Setting the password', async () => {
-        logger.info('Step 9 [1/3]: Setting the password');
+      await test.step('Step 9 [1/3]: Setting the password and showing it', async () => {
+        logger.info('Step 9 [1/3]: Setting the password and showing it');
         // Reaching this screen is the proof the code was accepted.
         await employerSignUpPage.waitForSetPasswordScreen();
-        await employerSignUpPage.setPassword(registration.password);
+        await employerSignUpPage.enterPassword(registration.password);
+        await employerSignUpPage.showPasswords();
+        expect(
+          await employerSignUpPage.arePasswordsShown(),
+          'Both passwords should be shown after clicking the eye icons',
+        ).toBeTruthy();
+        expect(await employerSignUpPage.getShownPassword()).toBe(registration.password);
+        expect(await employerSignUpPage.getShownConfirmPassword()).toBe(registration.password);
+        logger.info(`Password set: ${registration.password}`);
+        await employerSignUpPage.clickSetPassword();
       });
 
       // ======================= [2/3] Company details =======================

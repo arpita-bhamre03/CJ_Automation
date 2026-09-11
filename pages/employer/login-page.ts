@@ -51,9 +51,15 @@ export class EmployerLoginPage extends BasePage {
     this.errorMessage = page.locator(
       '[data-qa-id="error-message"], [role="alert"], .error-message, [data-testid="error-message"]',
     );
+    // Dashboard anchors are matched by tag and visible text, NOT by accessibility
+    // role. The dashboard can open a pop-up (e.g. "A Virtual Job Fair is live"),
+    // and while it is open MUI marks the rest of the page aria-hidden - which
+    // getByRole() skips, so role-based lookups fail even though the page is in
+    // plain view. Whether the pop-up is already open depends on timing.
+    //
     // The authenticated shell (MainLayout -> Header -> MUI AppBar) renders a
-    // single <header> on every signed-in page, which is also the banner landmark.
-    this.appHeader = page.locator('[data-qa-id="app-header"]').or(page.getByRole('banner'));
+    // single <header> on every signed-in page.
+    this.appHeader = page.locator('[data-qa-id="app-header"], header');
 
     // The dashboard greets the signed-in user. Anchored on the comma so it cannot
     // collide with the login screen's own "Welcome Back" title, and falling back
@@ -63,7 +69,9 @@ export class EmployerLoginPage extends BasePage {
     // greeting and the header are both present, so the .or() chain matches two
     // elements and waitFor() fails strict mode. Without it this passes or fails
     // depending on render timing.
-    this.welcomeHeading = page.getByRole('heading', { name: /^Welcome back,/i });
+    this.welcomeHeading = page
+      .locator('h1, h2, h3, h4, h5, h6')
+      .filter({ hasText: /^\s*Welcome back,/i });
     this.dashboard = page
       .locator('[data-qa-id="employer-dashboard"], [data-testid="dashboard"]')
       .or(this.welcomeHeading)
