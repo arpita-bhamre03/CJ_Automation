@@ -33,3 +33,9 @@ export const phoneNumber = (): string => {
     .padStart(9, '0');
   return `${first}${rest}`;
 };
+
+/**
+ * A password meeting CentraJob's rules: at least 8 characters with an upper-case
+ * letter, a lower-case letter, a digit and a special character.
+ */
+export const password = (): string => `Qa@${uniqueSuffix()}9Z`;

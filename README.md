@@ -137,14 +137,14 @@ specs sit at the same path under each root — `pages/employer/login-page.ts` pa
 with `tests/web/employer/login.spec.ts`:
 
 ```
-pages/                          tests/
-├── candidate/  login-page.ts   ├── fixtures/   shared test fixtures
-├── employer/   login-page.ts   ├── web/
-├── college/    login-page.ts   │   ├── candidate/  login.spec.ts
-├── admin/      login-page.ts   │   ├── employer/   login.spec.ts
-└── common/     shared pages    │   ├── college/    login.spec.ts
-                                │   └── admin/      login.spec.ts
-                                └── services/web/   API specs (none yet)
+pages/                              tests/
+├── candidate/  login-page.ts       ├── fixtures/   shared test fixtures
+├── employer/   login-page.ts       ├── web/
+│               signup-page.ts      │   ├── candidate/  login.spec.ts
+├── college/    login-page.ts       │   ├── employer/   login.spec.ts, signup.spec.ts
+├── admin/      login-page.ts       │   ├── college/    login.spec.ts
+└── common/     yopmail-inbox-page  │   └── admin/      login.spec.ts
+                                    └── services/web/   API specs (none yet)
 ```
 
 A new page object goes in `pages/<portal>/<feature>-page.ts` and its spec in
@@ -364,6 +364,11 @@ Anything further needs approval before installation, and must be added to
   (`@smoke @regression @login @college`)
 - Admin panel login with the emailed verification code read from Yopmail, then
   dashboard verification, 10 reported steps (`@smoke @regression @login @admin`)
+- Employer sign-up: registration form, code emailed to a new Yopmail inbox, set
+  password, landing on company details — 10 reported steps
+  (`@regression @signup @employer`). **Each run registers a new company on DEV**
+  with generated, unique details; company details and document uploads (the rest of
+  onboarding) are not covered yet.
 
 > **The candidate test's assertion is weak and should be strengthened.** It asserts
 > `expect(page).toHaveURL(/.*(candidate|dashboard|home).*/i)`, which the candidate

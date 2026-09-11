@@ -14,6 +14,7 @@ import { getCredentials, type Credentials } from '@config/settings';
 import { resolvePortalUrl } from '@core/platform/platform';
 import { CandidateLoginPage } from '@pages/candidate/login-page';
 import { EmployerLoginPage } from '@pages/employer/login-page';
+import { EmployerSignUpPage } from '@pages/employer/signup-page';
 import { CollegeLoginPage } from '@pages/college/login-page';
 import { AdminLoginPage } from '@pages/admin/login-page';
 import { YopmailInboxPage } from '@pages/common/yopmail-inbox-page';
@@ -37,6 +38,7 @@ type CentraJobFixtures = {
   // ---- page objects ----
   candidateLoginPage: CandidateLoginPage;
   employerLoginPage: EmployerLoginPage;
+  employerSignUpPage: EmployerSignUpPage;
   collegeLoginPage: CollegeLoginPage;
   adminLoginPage: AdminLoginPage;
   yopmailInboxPage: YopmailInboxPage;
@@ -105,6 +107,10 @@ export const test = base.extend<CentraJobFixtures>({
 
   employerLoginPage: async ({ page }, use) => {
     await use(new EmployerLoginPage(page));
+  },
+
+  employerSignUpPage: async ({ page }, use) => {
+    await use(new EmployerSignUpPage(page));
   },
 
   collegeLoginPage: async ({ page }, use) => {

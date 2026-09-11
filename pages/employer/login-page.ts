@@ -24,6 +24,7 @@ export class EmployerLoginPage extends BasePage {
   readonly loginButton: Locator;
   readonly submitButton: Locator;
   readonly loginForm: Locator;
+  readonly signUpButton: Locator;
   readonly errorMessage: Locator;
   readonly appHeader: Locator;
   readonly welcomeHeading: Locator;
@@ -46,6 +47,7 @@ export class EmployerLoginPage extends BasePage {
     this.loginButton = page.getByTestId('auth-login-submit-button');
     this.submitButton = page.locator('button[type="submit"]');
     this.loginForm = page.getByTestId('auth-login-form');
+    this.signUpButton = page.getByTestId('auth-login-signup-button');
     this.errorMessage = page.locator(
       '[data-qa-id="error-message"], [role="alert"], .error-message, [data-testid="error-message"]',
     );
@@ -85,6 +87,11 @@ export class EmployerLoginPage extends BasePage {
     // reports as such instead of as a generic click timeout.
     await this.waitForEnabled(this.loginButton);
     await this.click(this.loginButton);
+  }
+
+  /** "Don't have an account? Sign Up" - opens /auth/register. */
+  async clickSignUp(): Promise<void> {
+    await this.click(this.signUpButton);
   }
 
   async login(username: string, password: string): Promise<void> {

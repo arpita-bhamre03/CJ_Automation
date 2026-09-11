@@ -1,0 +1,6 @@
+{
+  "_comment": "Expected UI strings for employer sign-up, read off the live DEV app and its deployed bundle.",
+  "registerTitle": "Get Started",
+  "registerStepBadge": "1/3",
+  "verifyEmailTitle": "Verify Your Email"
+}
