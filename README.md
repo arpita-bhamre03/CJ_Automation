@@ -71,9 +71,10 @@ All secrets come from `.env`, which is gitignored and must never be committed.
 |---|---|
 | `ENV` | Active environment (`dev` default) |
 | `<PORTAL>_USERNAME` / `<PORTAL>_PASSWORD` | Credentials per portal persona |
-| `HEADLESS` | `false` to watch the browser |
+| `HEADLESS` | `false` to watch the browser — it opens maximized and runs one test at a time |
 | `SLOW_MO` | ms paused before each action, so you can see what is being targeted |
 | `TYPE_DELAY` | ms between keystrokes; above 0, text is typed rather than set at once |
+| `ADMIN_MFA` | `force` (default) or `auto` — see "Admin sign-in: emailed verification code" |
 | `REPORTS_DIR`, `TRACE_MODE`, `VIDEO_MODE` | Artifact behaviour |
 | `LOG_LEVEL` | `DEBUG` / `INFO` / `WARN` / `ERROR` |
 | `*_API_URL` | API service base URLs (pending) |
@@ -140,9 +141,9 @@ pages/                          tests/
 ├── candidate/  login-page.ts   ├── fixtures/   shared test fixtures
 ├── employer/   login-page.ts   ├── web/
 ├── college/    login-page.ts   │   ├── candidate/  login.spec.ts
-├── admin/      (none yet)      │   ├── employer/   login.spec.ts
+├── admin/      login-page.ts   │   ├── employer/   login.spec.ts
 └── common/     shared pages    │   ├── college/    login.spec.ts
-                                │   └── admin/      (none yet)
+                                │   └── admin/      login.spec.ts
                                 └── services/web/   API specs (none yet)
 ```
 
@@ -197,12 +198,43 @@ Coverage varies sharply by portal, so check the live DOM before assuming:
 |---|---|---|
 | College | 163 | unprefixed — `login-form`, `login-email-input`, `login-submit-btn` |
 | Employer | 47 | `auth-` prefixed — `auth-login-email-input` |
+| Admin | 0 `data-testid`; 5 element ids | `Login_` prefixed ids — `#Login_email_input`, `#Login_submit` |
 | Candidate | not yet surveyed | — |
 
 Dashboards are far thinner than login screens. The employer dashboard exposes three
 hooks and the college dashboard none, so both anchor verification on the
 "Welcome back," heading instead — plus the app shell's `banner` landmark on employer,
-which the college portal does not render.
+which the college portal does not render. The admin dashboard is the exception:
+it carries `#Dashboard_*` and `#Sidebar_menu_*` ids, plus an exact "Dashboard" title.
+
+The admin email field is `readonly` until focused (an anti-autofill technique), and
+Playwright will not type into a readonly field — so the admin page object clicks each
+field before filling it.
+
+### Admin sign-in: emailed verification code (MFA)
+
+After Sign in, the admin panel can route to `/verify-code` — "Verify it's you", six
+single-digit boxes — and email a code to the admin's Yopmail address. Whether it does
+is decided by the Firebase Remote Config flag **`enableMFA`**, which the browser
+fetches right after the login call. DEV currently serves `enableMFA = "false"`
+(template version 262), so an ordinary browser goes straight to `/dashboard`.
+
+`ADMIN_MFA` controls what the tests do:
+
+| Value | Behaviour |
+|---|---|
+| `force` (default) | the test browser receives `enableMFA = "true"`, so the code flow always runs — real `SendOTP`, real email, real `VerifyOTP`. Only this browser's view of the flag changes; Firebase, the app and the backend are untouched. |
+| `auto` | follow Firebase; when no code is requested, steps 5–8 are skipped and the test is annotated saying so |
+
+The code is read by [pages/common/yopmail-inbox-page.ts](pages/common/yopmail-inbox-page.ts).
+The inbox keeps old codes and message timestamps are unreliable (seen ~20 minutes
+ahead of local time), so the test notes the newest message id *before* signing in —
+quietly, in a background tab — and only trusts a message that arrives after it. Once
+the code screen appears it uses Yopmail the way a person would: types the address on
+the home page, checks the inbox, opens the new email and highlights the code, then
+switches back and types it into the panel. Codes expire after 2 minutes. Entering
+the sixth digit submits automatically, so "Verify and sign in" is clicked only if that
+did not happen. CI needs outbound access to yopmail.com.
 
 **End an `.or()` fallback chain with `.first()`.** Once a page finishes rendering,
 several alternatives in the chain can match at the same time, and `waitFor()` then
@@ -330,6 +362,8 @@ Anything further needs approval before installation, and must be added to
   (`@smoke @regression @login @employer`)
 - College portal login + dashboard verification, 7 reported steps
   (`@smoke @regression @login @college`)
+- Admin panel login with the emailed verification code read from Yopmail, then
+  dashboard verification, 10 reported steps (`@smoke @regression @login @admin`)
 
 > **The candidate test's assertion is weak and should be strengthened.** It asserts
 > `expect(page).toHaveURL(/.*(candidate|dashboard|home).*/i)`, which the candidate

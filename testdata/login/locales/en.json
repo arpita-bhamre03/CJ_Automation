@@ -6,5 +6,8 @@
   "passwordPlaceholder": "Enter your password",
   "signInButton": "Sign In",
   "invalidCredentialsError": "TODO: capture the exact error text from DEV",
-  "requiredFieldError": "TODO: capture the exact error text from DEV"
+  "requiredFieldError": "TODO: capture the exact error text from DEV",
+  "otpEmailSubject": "OTP for Verification",
+  "mfaTitle": "Verify it's you",
+  "mfaInvalidCodeError": "That code is not right. Check it and try again."
 }

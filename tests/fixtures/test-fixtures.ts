@@ -15,6 +15,8 @@ import { resolvePortalUrl } from '@core/platform/platform';
 import { CandidateLoginPage } from '@pages/candidate/login-page';
 import { EmployerLoginPage } from '@pages/employer/login-page';
 import { CollegeLoginPage } from '@pages/college/login-page';
+import { AdminLoginPage } from '@pages/admin/login-page';
+import { YopmailInboxPage } from '@pages/common/yopmail-inbox-page';
 import { captureFailureArtifacts } from '@helpers/failure-artifact';
 import { logger } from '@helpers/logger';
 
@@ -24,16 +26,20 @@ type CentraJobFixtures = {
   candidateUrl: string;
   employerUrl: string;
   collegeUrl: string;
+  adminUrl: string;
 
   // ---- credentials ----
   candidateUser: Credentials;
   employerUser: Credentials;
   collegeUser: Credentials;
+  adminUser: Credentials;
 
   // ---- page objects ----
   candidateLoginPage: CandidateLoginPage;
   employerLoginPage: EmployerLoginPage;
   collegeLoginPage: CollegeLoginPage;
+  adminLoginPage: AdminLoginPage;
+  yopmailInboxPage: YopmailInboxPage;
 
   // ---- diagnostics ----
   consoleLogs: string[];
@@ -57,6 +63,10 @@ export const test = base.extend<CentraJobFixtures>({
     await use(resolvePortalUrl('college'));
   },
 
+  adminUrl: async ({}, use) => {
+    await use(resolvePortalUrl('admin'));
+  },
+
   // ===== CREDENTIALS =====
   candidateUser: async ({}, use) => {
     await use(getCredentials('candidate'));
@@ -68,6 +78,10 @@ export const test = base.extend<CentraJobFixtures>({
 
   collegeUser: async ({}, use) => {
     await use(getCredentials('college'));
+  },
+
+  adminUser: async ({}, use) => {
+    await use(getCredentials('admin'));
   },
 
   // ===== DIAGNOSTICS =====
@@ -95,6 +109,19 @@ export const test = base.extend<CentraJobFixtures>({
 
   collegeLoginPage: async ({ page }, use) => {
     await use(new CollegeLoginPage(page));
+  },
+
+  adminLoginPage: async ({ page }, use) => {
+    await use(new AdminLoginPage(page));
+  },
+
+  // Opened in its own tab of the same browser, so a watched run shows both the
+  // portal and the inbox. The portal tab is brought back to the front first.
+  yopmailInboxPage: async ({ context, page }, use) => {
+    const mailTab = await context.newPage();
+    await page.bringToFront();
+    await use(new YopmailInboxPage(mailTab));
+    await mailTab.close().catch(() => undefined);
   },
 });
 

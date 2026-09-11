@@ -117,4 +117,9 @@ export abstract class BasePage {
   async getTitle(): Promise<string> {
     return this.page.title();
   }
+
+  /** Switch to this page's tab - for flows that hop between two tabs. */
+  async bringToFront(): Promise<void> {
+    await this.page.bringToFront();
+  }
 }

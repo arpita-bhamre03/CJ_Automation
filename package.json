@@ -14,6 +14,7 @@
     "test:candidate": "playwright test --grep @candidate",
     "test:employer": "playwright test --grep @employer",
     "test:college": "playwright test --grep @college",
+    "test:admin": "playwright test --grep @admin",
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",

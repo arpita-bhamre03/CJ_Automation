@@ -16,6 +16,9 @@ import { timeouts, viewport } from './config/app.config';
 
 dotenv.config();
 
+/** A headed run is one someone is watching; it gets a maximized window and 1 worker. */
+const watched = !settings.headless;
+
 const traceMode =
   (process.env.TRACE_MODE as 'off' | 'on' | 'on-first-retry' | 'retain-on-failure') ??
   'on-first-retry';
@@ -50,12 +53,20 @@ export default defineConfig({
     headless: settings.headless,
     ignoreHTTPSErrors: true,
     // SLOW_MO pauses before each action so a headed run is watchable. 0 in CI.
-    launchOptions: { slowMo: settings.slowMo },
+    // A watched run opens maximized so the page fits the real screen.
+    launchOptions: {
+      slowMo: settings.slowMo,
+      args: watched ? ['--start-maximized'] : [],
+    },
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], viewport },
+      // Watched: no fixed viewport, so the page follows the maximized window rather
+      // than a 1440x1200 canvas that overflows smaller screens. The device preset is
+      // skipped too - its deviceScaleFactor cannot be combined with a null viewport.
+      // Headless keeps the fixed desktop size so screenshots stay comparable.
+      use: watched ? { browserName: 'chromium', viewport: null } : { ...devices['Desktop Chrome'], viewport },
     },
   ],
   outputDir: 'test-results',

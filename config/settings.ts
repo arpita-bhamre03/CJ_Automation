@@ -55,6 +55,16 @@ export const settings = {
    */
   slowMo: numberFromEnv('SLOW_MO', 0),
   typeDelay: numberFromEnv('TYPE_DELAY', 0),
+
+  /**
+   * Admin sign-in MFA. The admin panel asks for an emailed code only when the
+   * Firebase Remote Config flag `enableMFA` is true - currently false on DEV.
+   * 'force' (default) switches it on for the test browser so the code flow always
+   * runs; 'auto' follows whatever Firebase returns.
+   */
+  adminMfa: (process.env.ADMIN_MFA?.toLowerCase() === 'auto' ? 'auto' : 'force') as
+    | 'force'
+    | 'auto',
 };
 
 /** Mirrors get_settings() from the framework spec. */

@@ -23,6 +23,8 @@ pipeline {
     EMPLOYER_PASSWORD = credentials('centrajob-employer-password')
     COLLEGE_USERNAME = credentials('centrajob-college-username')
     COLLEGE_PASSWORD = credentials('centrajob-college-password')
+    ADMIN_USERNAME = credentials('centrajob-admin-username')
+    ADMIN_PASSWORD = credentials('centrajob-admin-password')
   }
 
   options {
