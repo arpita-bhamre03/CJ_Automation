@@ -14,6 +14,13 @@ export const DOWNLOADS_DIR = path.join(REPORT_DIR, 'downloads');
 
 export const timeouts = {
   test: 45_000,
+  /**
+   * Per-test limit for a watched (headed) run. SLOW_MO pauses before every action
+   * and TYPE_DELAY types character by character, so a flow that takes ~30s
+   * headless - employer sign-up, admin login with emailed code - runs well past
+   * the 45s headless limit when watched.
+   */
+  watchedTest: 180_000,
   expect: 15_000,
   action: 20_000,
   navigation: 30_000,

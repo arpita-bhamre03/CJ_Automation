@@ -28,7 +28,7 @@ const videoMode =
 
 export default defineConfig({
   testDir: './tests',
-  timeout: timeouts.test,
+  timeout: watched ? timeouts.watchedTest : timeouts.test,
   expect: { timeout: timeouts.expect },
   fullyParallel: false,
   // A watched run is sequential: parallel workers open several browser windows at
